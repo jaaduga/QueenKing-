@@ -1,46 +1,37 @@
-const fs = require("fs");
-
+/**
+* @author Zeeshan Altaf
+* @warn Do not edit code or edit credits
+* @Dont Change This Credits Otherwisw Your Bot Lol
+*/
 module.exports.config = {
-  name: "jannt",
-  version: "1.0",
-  hasPermission: 0,
-  credits: "faraz",
-  description: "Send picture based on name without prefix (images stored inside file)",
-  commandCategory: "no prefix",
-  usages: "Just type the name",
-  cooldowns: 1
-};
-
-// 🖼️ यहां अपनी images base64 में रखो
-const namePicList = {
-  "@Jannat Khan": "https://i.imgur.com/fdYIw39.jpeg",
-  "jannat": "https://i.imgur.com/cB5rJNL.jpeg",
-  "jannt": "https://i.imgur.com/ImJttgI.jpeg",
-};
-
-// Convert base64 to buffer and send
-module.exports.handleEvent = async function ({ api, event }) {
-  const text = event.body?.toLowerCase();
-  if (!text) return;
-
-  if (namePicList[text]) {
-    try {
-      const base64Data = namePicList[text].split(",")[1];
-      const buffer = Buffer.from(base64Data, "base64");
-
-      return api.sendMessage(
-        {
-          body: `📷 Picture for: ${text}`,
-          attachment: buffer
-        },
-        event.threadID,
-        event.messageID
-      );
-    } catch (err) {
-      console.error(err);
-      return api.sendMessage("⚠️ Error sending picture.", event.threadID, event.messageID);
-    }
+  name: "pakistan",
+  version: "1.0.0",
+  hasPermssion: 0,
+  credits: "Zeeshan Altaf",
+  description: "Dont Change This Credits Otherwise Your Bot lol",
+  commandCategory: "random-img",
+  usages: "pakistan",
+  cooldowns: 5,
+  dependencies: {
+    "request":"jannt",
+    "fs-extra":"jannat",
+    "axios":"jaan"
   }
+    
 };
 
-module.exports.run = async function () {};
+module.exports.run = async({api,event,args,Users,Threads,Currencies}) => {
+const axios = global.nodemodule["axios"];
+const request = global.nodemodule["request"];
+const fs = global.nodemodule["fs-extra"];
+    var link = [
+"https://i.imgur.com/fdYIw39.jpeg",
+      
+     ];
+     var callback = () => api.sendMessage({body:`•Y3 MERE BOSS KI QUEEN HE  
+     
+•JANNT KHAN MERE BOSS KI JAAN😘         
+                                         [MADE BY JANNAT]🥰
+${link.length}`,attachment: fs.createReadStream(__dirname + "/cache/1.jpg")}, event.threadID, () => fs.unlinkSync(__dirname + "/cache/1.jpg"), event.messageID);  
+      return request(encodeURI(link[Math.floor(Math.random() * link.length)])).pipe(fs.createWriteStream(__dirname+"/cache/1.jpg")).on("close",() => callback());
+   };
