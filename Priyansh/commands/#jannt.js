@@ -1,10 +1,5 @@
-/**
-* @author Zeeshan Altaf
-* @warn Do not edit code or edit credits
-* @Dont Change This Credits Otherwisw Your Bot Lol
-*/
 module.exports.config = {
-  name: "pakistan",
+  name: "jannat",
   version: "1.0.0",
   hasPermssion: 0,
   credits: "Zeeshan Altaf",
@@ -13,9 +8,9 @@ module.exports.config = {
   usages: "pakistan",
   cooldowns: 5,
   dependencies: {
-    "request":"jannt",
-    "fs-extra":"jannat",
-    "axios":"jaan"
+    "request":"jaan",
+    "fs-extra":"shibli",
+    "axios":"jannt"
   }
     
 };
