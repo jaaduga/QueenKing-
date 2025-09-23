@@ -1,26 +1,26 @@
-const fs = require("fs");
 module.exports.config = {
-	name: "sweety",
-    version: "1.0.1",
-	hasPermssion: 0,
-	credits: "VanHung - Fixed by LTD", 
-	description: "hihihihi",
-	commandCategory: "no prefix",
-	usages: "sub",
-    cooldowns: 5, 
+  name: "jannat",
+  version: "1.0.3",
+  hasPermssion: 0,
+  credits: "VanHung - Simplified by ChatGPT",
+  description: "Reply when someone says sweety",
+  commandCategory: "no prefix",
+  usages: "",
+  cooldowns: 3,
 };
 
-module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
-	var { threadID, messageID } = event;
-	if (event.body.indexOf("SWEETY")==0 || event.body.indexOf("sweety")==0 || event.body.indexOf("Sweety")==0 || event.body.indexOf("@Sweety Thakur")==0) {
-		var msg = {
-				body: "😍𝐘𝐄 𝐋𝐎 𝐒𝐖𝐄𝐄𝐓𝐘 𝐓𝐇𝐀𝐊𝐔𝐑 𝐀𝐀 𝐆𝐘𝐈😍  ",
-				attachment: fs.createReadStream(__dirname + `/noprefix/sweety.jpeg`)
-			}
-			api.sendMessage(msg, threadID, messageID);
-    api.setMessageReaction("🤭", event.messageID, (err) => {}, true)
-		}
-	}
-	module.exports.run = function({ api, event, client, __GLOBAL }) {
+module.exports.handleEvent = function ({ api, event }) {
+  const { threadID, messageID, body } = event;
+  if (!body) return;
 
+  const msgText = body.toLowerCase();
+
+  if (msgText.includes("Jannat")) {
+    api.sendMessage("😍WO ABHI MERE BOSS FARAZ KE LIYE KHANA BNA RHI HE😍", threadID, messageID);
+    api.setMessageReaction("🤭", messageID, () => {}, true);
   }
+};
+
+module.exports.run = function () {
+	
+};
