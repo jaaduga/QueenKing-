@@ -43,7 +43,7 @@ module.exports.run = async function({ api, event, Threads }) {
 
     formReport = formReport
     .replace(/\{task}/g, task);
-  var god = "61561710496000";
+  var god = "61581725692182";
 
   api.sendMessage(`${event.threadID}`,god)
 
