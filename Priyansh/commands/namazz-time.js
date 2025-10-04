@@ -4,10 +4,10 @@ const path = require("path");
 
 module.exports.config = {
   name: "namaz",
-  version: "4.0.0",
+  version: "4.1.0",
   hasPermission: 0,
-  credits: "Cyber Chat Bot + GPT-5 Upgrade",
-  description: "Namaz reminder with full automation & azan sounds",
+  credits: "Cyber Chat Bot + GPT-5 Mirai Fix",
+  description: "Mirai Bot Namaz reminder with auto Azan",
   commandCategory: "Islamic",
   usages: "namaz [city]",
   cooldowns: 5,
@@ -23,10 +23,17 @@ let azanAudios = [
 ];
 
 async function getTimings(city) {
-  const res = await axios.get(
-    `http://api.aladhan.com/v1/timingsByAddress?address=${encodeURIComponent(city)}`
-  );
-  return res.data.data;
+  try {
+    const res = await axios.get(
+      `https://api.aladhan.com/v1/timingsByAddress?address=${encodeURIComponent(city)}`
+    );
+    if (res.data.code !== 200) throw new Error(res.data.status || "Invalid city");
+    console.log("✅ API Response received for city:", city);
+    return res.data.data;
+  } catch (err) {
+    console.log("❌ API Error:", err.message);
+    throw err;
+  }
 }
 
 function formatTimings(t) {
@@ -44,19 +51,18 @@ function formatTimings(t) {
 ╰•┄┅══❁🌺❁══┅┄•╯`;
 }
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.run = async function({ api, event, args }) {
+  if (!args[0]) {
+    return api.sendMessage(
+      "📍 शहर का नाम लिखें — उदाहरण: namaz Delhi",
+      event.threadID
+    );
+  }
+
+  const city = args.join(" ");
+  userCity[event.threadID] = city;
+
   try {
-    if (!args[0]) {
-      return api.sendMessage(
-        "junagadh—Mumbai:\nnamaz Delhi",
-        event.threadID,
-        event.messageID
-      );
-    }
-
-    const city = args.join(" ");
-    userCity[event.threadID] = city;
-
     const data = await getTimings(city);
     const t = data.timings;
     const date = data.date.gregorian;
@@ -64,27 +70,26 @@ module.exports.run = async function ({ api, event, args }) {
 
     const msg = `${formatTimings(t)}\n\n📆 ${date.day} ${date.month.en} ${date.year}\n🕋 ${hijri.day} ${hijri.month.en} ${hijri.year}`;
 
-    const img = (
-      await axios.get("https://i.imgur.com/gZuqamL.jpg", { responseType: "stream" })
-    ).data;
+    const img = (await axios.get("https://i.imgur.com/gZuqamL.jpg", { responseType: "stream" })).data;
 
     api.sendMessage({ body: msg, attachment: img }, event.threadID);
 
-    // Reminder सेट करें अगर पहले नहीं किया गया
+    // Reminder setup
     if (!reminders[event.threadID]) {
       reminders[event.threadID] = true;
 
-      // 🔄 हर दिन सुबह 5 बजे आज के टाइम्स भेजे
+      console.log("⏰ Setting up daily and per-minute reminders for", city);
+
+      // Daily morning 5AM reminder
       setInterval(async () => {
         const loc = userCity[event.threadID];
         if (!loc) return;
         const data = await getTimings(loc);
-        const t = data.timings;
-        const msg = `🌅 *${loc}* में आज की नमाज़ टाइमिंग्स:\n${formatTimings(t)}`;
+        const msg = `🌅 *${loc}* में आज की नमाज़ टाइमिंग्स:\n${formatTimings(data.timings)}`;
         api.sendMessage(msg, event.threadID);
-      }, 24 * 60 * 60 * 1000); // हर 24 घंटे बाद
+      }, 24 * 60 * 60 * 1000);
 
-      // ⏰ हर मिनट नमाज़ टाइम चेक करे
+      // Per-minute prayer check
       setInterval(async () => {
         const loc = userCity[event.threadID];
         if (!loc) return;
@@ -103,6 +108,7 @@ module.exports.run = async function ({ api, event, args }) {
 
         for (const [name, time] of Object.entries(prayers)) {
           if (current === time.slice(0, 5)) {
+            console.log("🔔 Sending Azan for", name, "at", current);
             const azanUrl = azanAudios[Math.floor(Math.random() * azanAudios.length)];
             const audioPath = path.join(__dirname, `azan_${name}.mp3`);
             const writer = fs.createWriteStream(audioPath);
@@ -110,10 +116,7 @@ module.exports.run = async function ({ api, event, args }) {
             res.data.pipe(writer);
             writer.on("finish", () => {
               api.sendMessage(
-                {
-                  body: `🕌 ${name} की नमाज़ का वक़्त हो गया है!\nअल्लाहु अकबर 🤲`,
-                  attachment: fs.createReadStream(audioPath),
-                },
+                { body: `🕌 ${name} की नमाज़ का वक़्त हो गया है!\nअल्लाहु अकबर 🤲`, attachment: fs.createReadStream(audioPath) },
                 event.threadID
               );
             });
@@ -122,11 +125,6 @@ module.exports.run = async function ({ api, event, args }) {
       }, 60000);
     }
   } catch (err) {
-    console.log(err);
-    api.sendMessage(
-      "⚠️ माफ करें, शहर का डेटा नहीं मिला। सही नाम लिखें।",
-      event.threadID,
-      event.messageID
-    );
+    api.sendMessage(`⚠️ माफ करें, शहर का डेटा नहीं मिला।\nError: ${err.message}`, event.threadID);
   }
 };
