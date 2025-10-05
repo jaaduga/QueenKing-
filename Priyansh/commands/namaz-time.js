@@ -4,23 +4,21 @@ const path = require("path");
 
 module.exports.config = {
   name: "auto_azan",
-  version: "11.0.0",
+  version: "12.0.0",
   hasPermission: 0,
-  credits: "Cyber Chat Bot + GPT-5 Junagadh Auto Fix",
+  credits: "Cyber Chat Bot + GPT-5 Junagadh Fix (Mirai Compatible)",
   description: "Auto Azan Reminder for Junagadh (No Prefix) with Time Display",
   commandCategory: "Islamic",
-  usages: "Auto run (no prefix)",
+  usages: "Auto run at startup",
   cooldowns: 5,
 };
 
 const cacheFile = path.join(__dirname, "namazCache.json");
 let loopStarted = false;
 
-// ================= MAIN AUTO LOOP =================
-module.exports.handleEvent = async ({ api }) => {
+module.exports.onLoad = async function ({ api }) {
   if (loopStarted) return;
   loopStarted = true;
-
   console.log("🕌 Auto Azan Reminder (Junagadh) चालू हो गया ✅");
 
   setInterval(async () => {
@@ -30,7 +28,7 @@ module.exports.handleEvent = async ({ api }) => {
       if (!timings) return;
 
       const now = new Date();
-      const currentTime = now.toLocaleTimeString("en-US", {
+      const currentTime = now.toLocaleTimeString("en-GB", {
         hour12: false,
         hour: "2-digit",
         minute: "2-digit",
@@ -78,13 +76,17 @@ async function getNamazTimes(city) {
     fs.writeFileSync(cacheFile, JSON.stringify(cache, null, 2));
 
     return timings;
-  } catch {
+  } catch (e) {
+    console.error("Namaz API Error:", e.message);
     return null;
   }
 }
 
 function matchTime(apiTime, nowTime) {
-  return apiTime.slice(0, 5) === nowTime.slice(0, 5);
+  const formatted = apiTime.replace(/(\d+):(\d+)(?:\s?[AP]M)?/, (_, h, m) =>
+    `${h.padStart(2, "0")}:${m.padStart(2, "0")}`
+  );
+  return formatted === nowTime.slice(0, 5);
 }
 
 async function sendAzanAllGroups(api, message, city, azanTime) {
@@ -99,14 +101,14 @@ async function sendAzanAllGroups(api, message, city, azanTime) {
     for (const thread of allThreads) {
       api.sendMessage(
         {
-          body: `📣 *${city.toUpperCase()}* में अज़ान का वक़्त है 📣\n${message} (वक्त: ${azanTime})\n\n🕋 *अल्लाहु अकबर* 🕋`,
+          body: `📣 *${city.toUpperCase()}* में अज़ान का वक़्त है 📣\n${message}\n🕓 वक्त: ${azanTime}\n\n🕋 *अल्लाहु अकबर* 🕋`,
           attachment: fs.createReadStream(audioPath),
         },
         thread.threadID,
-        () => fs.unlinkSync(audioPath)
+        () => setTimeout(() => fs.unlinkSync(audioPath), 2000)
       );
     }
   } catch (err) {
-    console.error("Azan send error:", err);
+    console.error("Azan send error:", err.message);
   }
 }
