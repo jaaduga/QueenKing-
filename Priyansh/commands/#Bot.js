@@ -96,8 +96,8 @@ module.exports.handleEvent = async function({ api, event, args, Threads, Users }
      return api.sendMessage("😎𝐓𝐮𝐦 𝐜𝐡𝐚𝐬𝐦𝐢𝐬 𝐡𝐨 𝐤𝐲𝐚 𝐛𝐚𝐛𝐲😎", threadID);
    };
 
-   if ((event.body.toLowerCase() == "malik se bakchodi") || (event.body.toLowerCase() == "malik se backchodi") || (event.body.toLowerCase() == "malkin se bakchodi") || (event.body.toLowerCase() == "malkin se backchodi")) {
-     return api.sendMessage("💐𝐒𝐨𝐫𝐫𝐲 𝐌𝐚𝐥𝐢𝐤 𝐌𝐚𝐚𝐟 𝐊𝐫 𝐃𝐨 𝐌𝐞𝐫𝐞 𝐌𝐮𝐡 𝐒𝐞 𝐍𝐢𝐤𝐚𝐥 𝐆𝐚𝐲𝐚 𝐌𝐞𝐫𝐢 𝐉𝐮𝐁𝐚𝐍 𝐊𝐚𝐭 𝐆𝐚𝐲𝐢 𝐇𝐚𝐢 😫💐", threadID);
+   if ((event.body.toLowerCase() == "UMARIYA") || (event.body.toLowerCase() == "Umariya") || (event.body.toLowerCase() == "malkin se bakchodi") || (event.body.toLowerCase() == "malkin se backchodi")) {
+     return api.sendMessage("💐YE JO UMARIYA HENA BOSS THARKI HE USE NA BOLAV MERE BOSS FARAZ SE JALTA HE 😫💐", threadID);
    };
 
    if ((event.body.toLowerCase() == "bsdk") || (event.body.toLowerCase() == "bsdk bot") || (event.body.toLowerCase() == "bot bsdk") || (event.body.toLowerCase() == "bc")) {
