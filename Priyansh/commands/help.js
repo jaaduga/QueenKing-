@@ -1,76 +1,156 @@
+const fs = require("fs-extra");
+const request = require("request");
+const path = require("path");
+
 module.exports.config = {
-	name: "help",
-	version: "1.0.2",
-	hasPermssion: 0,
-	credits: "MR AARYAN",
-	description: "FREE SET-UP MESSENGER ON YOUTUBE",
-	commandCategory: "system",
-	usages: "[Name module]",
-	cooldowns: 5,
-	envConfig: {
-		autoUnsend: true,
-		delayUnsend: 20
-	}
+    name: "help",
+    version: "2.0.0",
+    hasPermssion: 0,
+    credits: "SHAHADAT SAHU",
+    description: "Shows all commands with details",
+    commandCategory: "system",
+    usages: "[command name/page number]",
+    cooldowns: 5,
+    envConfig: {
+        autoUnsend: true,
+        delayUnsend: 20
+    }
 };
 
 module.exports.languages = {
-	"en": {
-		"moduleInfo": "「 %1 」\n%2\n\n❯ Usage: %3\n❯ Category: %4\n❯ Waiting time: %5 seconds(s)\n❯ Permission: %6\n\n» Module code by %7 «",
-		"helpList": '[ There are %1 commands on this bot, Use: "%2help nameCommand" to know how to use! ]',
-		"user": "User",
-        "adminGroup": "Admin group",
-        "adminBot": "Admin bot"
-	}
+    "en": {
+        "moduleInfo": `╭━━━━━━━━━━━━━━━━╮
+┃ ✨ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐈𝐍𝐅𝐎 ✨
+┣━━━━━━━━━━━┫
+┃ 🔖 Name: %1
+┃ 📄 Usage: %2
+┃ 📜 Description: %3
+┃ 🔑 Permission: %4
+┃ 👨‍💻 Credit: %5
+┃ 📂 Category: %6
+┃ ⏳ Cooldown: %7s
+┣━━━━━━━━━━━━━━━━┫
+┃ ⚙ Prefix: %8
+┃ 🤖 Bot Name: %9
+┃ 👑 Owner: 𝗙𝗔𝗜𝗭𝗔𝗡 𝗞𝗛𝗔𝗡
+╰━━━━━━━━━━━━━━━━╯`,
+        "helpList": "[ There are %1 commands. Use: \"%2help commandName\" to view more. ]",
+        "user": "User",
+        "adminGroup": "Admin Group",
+        "adminBot": "Admin Bot"
+    }
 };
 
-module.exports.handleEvent = function ({ api, event, getText }) {
-	const { commands } = global.client;
-	const { threadID, messageID, body } = event;
+// 🔹 এখানে আপনার ফটো Imgur লিংক করে বসাবেন ✅
+const helpImages = [
+    "https://i.imgur.com/eUXAWYa.jpeg",
+    "https://i.imgur.com/N94yoC0.jpeg",
+    "https://i.imgur.com/PoDmsPF.jpeg",
+    "https://i.imgur.com/SKCGo2w.jpeg"
+];
 
-	if (!body || typeof body == "cmd" || body.indexOf("help") != 0) return;
-	const splitBody = body.slice(body.indexOf("help")).trim().split(/\s+/);
-	if (splitBody.length == 1 || !commands.has(splitBody[1].toLowerCase())) return;
-	const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
-	const command = commands.get(splitBody[1].toLowerCase());
-	const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
-	return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
+
+function downloadImages(callback) {
+    const randomUrl = helpImages[Math.floor(Math.random() * helpImages.length)];
+    const filePath = path.join(__dirname, "cache", "help_random.jpg");
+
+    request(randomUrl)
+        .pipe(fs.createWriteStream(filePath))
+        .on("close", () => callback([filePath]));
 }
 
-module.exports. run = function({ api, event, args, getText }) {
-	const { commands } = global.client;
-	const { threadID, messageID } = event;
-	const command = commands.get((args[0] || "").toLowerCase());
-	const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
-	const { autoUnsend, delayUnsend } = global.configModule[this.config.name];
-	const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
+module.exports.handleEvent = function ({ api, event, getText }) {
+    const { commands } = global.client;
+    const { threadID, messageID, body } = event;
 
-	if (!command) {
-		const arrayInfo = [];
-		const page = parseInt(args[0]) || 1;
-    const numberOfOnePage = 10;
-    let i = 0;
-    let msg = "╭────────╮\n👉🏻 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗟𝗜𝗦𝗧 👈🏻\n╰────────╯\n🌝▬▬▬▬▬▬▬▬▬▬▬▬🌝\n";
-    
-    for (var [name, value] of (commands)) {
-      arrayInfo.push(name);
-    }
+    if (!body || typeof body === "undefined" || body.indexOf("help") != 0) return;  
+    const splitBody = body.slice(body.indexOf("help")).trim().split(/\s+/);  
+    if (splitBody.length < 2 || !commands.has(splitBody[1].toLowerCase())) return;  
 
-    arrayInfo.sort((a, b) => a.data - b.data);
-    
-    const startSlice = numberOfOnePage*page - numberOfOnePage;
-    i = startSlice;
-    const returnArray = arrayInfo.slice(startSlice, startSlice + numberOfOnePage);
-  
-    for (let item of returnArray) msg += `   ╏  ${++i} ➥ ${item}\n`;
-    const randomText = [ "hy bhy baby","g","h"];
-    const text = `🌝▬▬▬▬▬▬▬▬▬▬▬▬🌝\n╭──────╮\n✅ 𝐏𝐀𝐆𝐄   (${page}/${Math.ceil(arrayInfo.length/numberOfOnePage)})✅\n╰──────╯\n𝗧𝘆𝗽𝗲: °${prefix}𝗛𝗲𝗹𝗽°\n𝗧𝗼𝘁𝗮𝗹 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀: ${arrayInfo.length} \n🌝▬▬▬▬▬▬▬▬▬▬▬▬🌝\n╭────────╮\n🙈 𝗡𝗔𝗠𝗘 𝗢𝗪𝗡𝗘𝗥 🙈\n╰────────╯  \n╭──────╮\n🥵 𒁍≛⃝𝐅𝐀𝐑𝐀𝐙\n╰──────╯\n🌝▬▬▬▬▬▬▬▬▬▬▬▬🌝 \nAGAIN ON GROUP\n🌜𝐎𝐖𝐍𝐄𝐑 𝐈𝐃🌛\n𝖥𝖠𝖱𝖠𝖹🩷\n\n🌜𝐘𝐎𝐔𝐓𝐔𝐁𝐄 𝐂𝐇𝐀𝐍𝐄𝐋🌛\nhttps://𝖲𝖮𝖱𝖱𝖸/\n🌝▬▬▬▬▬▬▬▬▬▬▬▬🌝 \n\n╭───────╮\n🥵 𝗙𝗢𝗥 𝗛𝗔𝗧𝗘𝗥𝗦 🥵\n╰───────╯ \n      𝗙𝗘𝗘𝗟 𝗧𝗛𝗘 𝗣𝗢𝗪𝗘𝗥 𝗢𝗙 ཫ༄𒁍𒁍⃝𝐅𝐀𝐑𝐀𝐙\n🌝▬▬▬▬▬▬▬▬▬▬▬▬🌝\n┎───────────┑\n ❘ 👑 ཫ༄𒁍≛⃝𝗙𝗔𝗥𝗔𝗭👑\n┗───────────┙\n🌝▬▬▬▬▬▬▬▬▬▬▬▬🌝`;
-    return api.sendMessage(msg  + text, threadID, async (error, info) => {
-			if (autoUnsend) {
-				await new Promise(resolve => setTimeout(resolve, delayUnsend * 10000));
-				return api.unsendMessage(info.messageID);
-			} else return;
-		});
-	}
+    const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};  
+    const command = commands.get(splitBody[1].toLowerCase());  
+    const prefix = threadSetting.PREFIX || global.config.PREFIX;  
 
-	return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
+    const detail = getText("moduleInfo",  
+        command.config.name,  
+        command.config.usages || "Not Provided",  
+        command.config.description || "Not Provided",  
+        command.config.hasPermssion,  
+        command.config.credits || "Unknown",  
+        command.config.commandCategory || "Unknown",  
+        command.config.cooldowns || 0,  
+        prefix,  
+        global.config.BOTNAME || "𝗙𝗮𝗶𝘇𝗮𝗻 𝐂𝐡𝐚𝐭 𝐁𝐨𝐭"  
+    );  
+
+    downloadImages(files => {  
+        const attachments = files.map(f => fs.createReadStream(f));  
+        api.sendMessage({ body: detail, attachment: attachments }, threadID, () => {  
+            files.forEach(f => fs.unlinkSync(f));  
+        }, messageID);  
+    });
+};
+
+module.exports.run = function ({ api, event, args, getText }) {
+    const { commands } = global.client;
+    const { threadID, messageID } = event;
+
+    const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};  
+    const prefix = threadSetting.PREFIX || global.config.PREFIX;  
+
+    if (args[0] && commands.has(args[0].toLowerCase())) {  
+        const command = commands.get(args[0].toLowerCase());  
+
+        const detailText = getText("moduleInfo",  
+            command.config.name,  
+            command.config.usages || "Not Provided",  
+            command.config.description || "Not Provided",  
+            command.config.hasPermssion,  
+            command.config.credits || "Unknown",  
+            command.config.commandCategory || "Unknown",  
+            command.config.cooldowns || 0,  
+            prefix,  
+            global.config.BOTNAME || "𝗙𝗮𝗶𝘇𝗮𝗻 𝐂𝐡𝐚𝐭 𝐁𝐨𝐭"  
+        );  
+
+        downloadImages(files => {  
+            const attachments = files.map(f => fs.createReadStream(f));  
+            api.sendMessage({ body: detailText, attachment: attachments }, threadID, () => {  
+                files.forEach(f => fs.unlinkSync(f));  
+            }, messageID);  
+        });  
+        return;  
+    }  
+
+    const arrayInfo = Array.from(commands.keys())
+        .filter(cmdName => cmdName && cmdName.trim() !== "")
+        .sort();  
+
+    const page = Math.max(parseInt(args[0]) || 1, 1);  
+    const numberOfOnePage = 20;  
+    const totalPages = Math.ceil(arrayInfo.length / numberOfOnePage);  
+    const start = numberOfOnePage * (page - 1);  
+    const helpView = arrayInfo.slice(start, start + numberOfOnePage);  
+
+    let msg = helpView.map(cmdName => `┃ ✪ ${cmdName}`).join("\n");
+
+    const text = `╭━━━━━━━━━━━━━━━━╮
+┃ 📜 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐋𝐈𝐒𝐓 📜
+┣━━━━━━━━━━━━━━━┫
+┃ 📄 Page: ${page}/${totalPages}
+┃ 🧮 Total: ${arrayInfo.length}
+┣━━━━━━━━━━━━━━━━┫
+${msg}
+┣━━━━━━━━━━━━━━━━┫
+┃ ⚙ Prefix: ${prefix}
+┃ 🤖 Bot Name: ${global.config.BOTNAME || "𝗙𝗮𝗶𝘇𝗮𝗻 𝐂𝐡𝐚𝐭 𝐁𝐨𝐭"}
+┃ 👑 Owner: 𝗙𝗔𝗜𝗭𝗔𝗡 𝗞𝗛𝗔𝗡
+╰━━━━━━━━━━━━━━━━╯`;
+
+    downloadImages(files => {  
+        const attachments = files.map(f => fs.createReadStream(f));  
+        api.sendMessage({ body: text, attachment: attachments }, threadID, () => {  
+            files.forEach(f => fs.unlinkSync(f));  
+        }, messageID);  
+    });  
 };
