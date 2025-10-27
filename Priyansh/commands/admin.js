@@ -1,33 +1,55 @@
+const axios = require("axios");
+const request = require("request");
+const fs = require("fs-extra");
+const moment = require("moment-timezone");
+
 module.exports.config = {
-  name: "admin",
-  version: "1.0.0",
-  hasPermssion: 0,
-  credits: "PREM BABU",
-  description: "Friends Dp photos",
-  commandCategory: "Random-IMG",
-  usages: "bestie dp",
-  cooldowns: 2,
-  dependencies: {
-    "request":"",
-    "fs-extra":"",
-    "axios":""
-  }
-    
+ name: "admin",
+ version: "1.0.0",
+ hasPermssion: 0,
+ credits: "𝐒𝐡𝐚𝐡𝐚𝐝𝐚𝐭 𝐈𝐬𝐥𝐚𝐦",
+ description: "Show Owner Info",
+ commandCategory: "info",
+ usages: "admin",
+ cooldowns: 2
 };
 
-module.exports.run = async({api,event,args,Users,Threads,Currencies}) => {
-const axios = global.nodemodule["axios"];
-const request = global.nodemodule["request"];
-const fs = global.nodemodule["fs-extra"];
-    var link = [
-"https://ibb.co/SDtvYzBx"
-    ];
-     var callback = () => api.sendMessage({body:`❤️𝐀𝐃𝐌𝐈𝐍 𝐈𝐍𝐅𝐎❤️
+module.exports.run = async function({ api, event }) {
+ const time = moment().tz("Asia/Dhaka").format("DD/MM/YYYY hh:mm:ss A");
 
-  🍒 ཫ༄𒁍𒁍⃝𝐅𝐀𝐑𝐀𝐙🥀•
+ const callback = () => api.sendMessage({
+ body: `
+┌───────────────⭓
+│ 𝗢𝗪𝗡𝗘𝗥 𝗗𝗘𝗧𝗔𝗜𝗟𝗦
+├───────────────
+│ 👤 𝐍𝐚𝐦𝐞 : 𝐅𝐚𝐢𝐳𝐚𝐧 
+│ 🚹 𝐆𝐞𝐧𝐝𝐞𝐫 : 𝐌𝐚𝐥𝐞
+│ ❤️ 𝐑𝐞𝐥𝐚𝐭𝐢𝐨𝐧 : 𝐅𝐢𝐳𝐚 𝐤𝐡𝐚𝐧
+│ 🎂 𝐀𝐠𝐞 : 𝟏𝟖+
+│ 🕌 𝐑𝐞𝐥𝐢𝐠𝐢𝐨𝐧 : 𝐈𝐬𝐥𝐚𝐦
+│ 🎓 𝐄𝐝𝐮𝐜𝐚𝐭𝐢𝐨𝐧 : 𝐇𝐒𝐂 (𝟐𝟎𝟐𝟔)
+│ 🏡 𝐀𝐝𝐝𝐫𝐞𝐬𝐬 : 𝐠𝐮𝐣𝐫𝐚𝐭
+└───────────────⭓
 
-𝐅𝐚𝐜𝐞𝐛𝐨𝐨𝐤 𝐋𝐢𝐧𝐤 https://www.facebook.com HERE : 
+┌───────────────⭓
+│ 𝗖𝗢𝗡𝗧𝗔𝗖𝗧 𝗟𝗜𝗡𝗞𝗦
+├───────────────
+│ 📘 𝗙𝗮𝗰𝗲𝗯𝗼𝗼𝗸:
+│ https://www.facebook.com/profile.php?id=61581725692182
+│ 💬 𝗪𝗵𝗮𝘁𝘀𝗔𝗽𝗽:
+│ https://wa.me/97122☆☆☆☆☆
+└───────────────⭓
 
-𝐖𝐡𝐚𝐭𝐬𝐚𝐩𝐩 𝐂𝐨𝐧𝐭𝐚𝐜𝐭 : +923243375326`,attachment: fs.createReadStream(__dirname + "/cache/1.jpg")}, event.threadID, () => fs.unlinkSync(__dirname + "/cache/1.jpg"));  
-      return request(encodeURI(link[Math.floor(Math.random() * link.length)])).pipe(fs.createWriteStream(__dirname+"/cache/1.jpg")).on("close",() => callback());
-   };
+┌───────────────⭓
+│ 🕒 𝗨𝗽𝗱𝗮𝘁𝗲𝗱 𝗧𝗶𝗺𝗲
+├───────────────
+│ ${time}
+└───────────────⭓
+ `,
+ attachment: fs.createReadStream(__dirname + "/cache/owner.jpg")
+ }, event.threadID, () => fs.unlinkSync(__dirname + "/cache/owner.jpg"));
+
+ return request("https://i.imgur.com/9CO3F23.jpeg")
+ .pipe(fs.createWriteStream(__dirname + '/cache/owner.jpg'))
+ .on('close', () => callback());
+};
