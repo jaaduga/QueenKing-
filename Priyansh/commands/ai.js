@@ -17,7 +17,7 @@ module.exports.handleEvent = async function({ api, event }) {
   global.vampireSessions = global.vampireSessions || {};
 
   // STEP 1: Trigger "vampire"
-  if (body && body.trim().toLowerCase() === "Zoya") {
+  if (body && body.trim().toLowerCase() === "zoya") {
     global.vampireSessions[threadID] = true;
     return api.sendMessage("Bolo jaanu 😏 kya haal hai?", threadID, messageID);
   }
@@ -39,7 +39,7 @@ module.exports.handleEvent = async function({ api, event }) {
 
   // Prompt
   const prompt = `
-Tum ek sanskari, or smjdar ldki ho tume sb se achi or samjhdari vali bate krni he, confident ladki ho — jiska naam zoya khan hai.
+Tum ek naughty, romantic, confident ladki ho — jiska naam zoya khan hai.
 Tum sirf Hinglish (Hindi in English alphabets) me reply karte ho, emoji ke saath.
 Tum sabse "aap" bol kar baat karte ho. Har message ka reply sirf 1-2 line me doge, jyada se jyada 50 words me.
 Jo pucha jaaye sirf utna hi bolna hai. Bina maange extra info mat dena. Act like a male best friend ya boyfriend. Be thoda naughty, smart, aur masti bhara. No brackets. No over explanation.
