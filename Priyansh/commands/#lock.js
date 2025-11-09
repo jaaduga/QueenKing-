@@ -1,76 +1,70 @@
-const fs = require("fs"),
-  path = __dirname + "/aaryan/aaryan.json";
+const fs = require("fs");
+const path = __dirname + "/aaryan/aaryan.json";
 
 module.exports.config = {
-name: "lock",
-version: "beta",
-hasPermssion: 1,
-credits: "SHANKAR SUMAN",
-description: "Cấm đổi tên nhóm!",
-commandCategory: "Hệ thống quản trị viên",
-usages: "antinamebot on/off",
-cooldowns: 0
-};
-module.exports.languages = {
-"vi": {},
-"en": {}
-};
-module.exports.onLoad = () => {   
-if (!fs.existsSync(path)) fs.writeFileSync(path, JSON.stringify({}));
+  name: "lockname",
+  version: "1.0.3",
+  hasPermssion: 1,
+  credits: "Fixed by ChatGPT | Original: SHANKAR SUMAN",
+  description: "Group name ko lock karta hai — sirf admin hi change kar sakta hai",
+  commandCategory: "System",
+  usages: "/lockname on | off",
+  cooldowns: 3
 };
 
-module.exports.handleEvent = async function ({ api, event, Threads, permssion }) {
-const { threadID, messageID, senderID, isGroup, author } = event;
+module.exports.onLoad = () => {
+  if (!fs.existsSync(path)) fs.writeFileSync(path, JSON.stringify({}, null, 2));
+};
 
-if (isGroup == true) {
-let data = JSON.parse(fs.readFileSync(path))
-let dataThread = (await Threads.getData(threadID)).threadInfo||{};
-const threadName = dataThread.threadName;
-if (!data[threadID]) {
-data[threadID] = {
-namebox: threadName,
-status: true
-}
-fs.writeFileSync(path, JSON.stringify(data, null, 2));
-}
-if (data[threadID].namebox == null || threadName == undefined || threadName == null) return
+module.exports.handleEvent = async function({ api, event, Threads }) {
+  const { threadID, isGroup, author } = event;
+  if (!isGroup) return;
 
-else if (threadName != data[threadID].namebox && data[threadID].status == false) {
-data[threadID].namebox = threadName
-fs.writeFileSync(path, JSON.stringify(data, null, 2));
-}
+  const data = JSON.parse(fs.readFileSync(path));
+  let threadInfo = (await Threads.getData(threadID)).threadInfo || {};
+  const currentName = threadInfo.threadName;
 
-if (threadName != data[threadID].namebox && data[threadID].status == true) {
-return api.setTitle(
- data[threadID].namebox,
-   threadID, () => {
-     api.sendMessage(
-  `${NONPREFIX(threadID)}`,
-   threadID)
-   });
+  if (!data[threadID]) {
+    data[threadID] = { namebox: currentName, status: false };
+    fs.writeFileSync(path, JSON.stringify(data, null, 2));
+    return;
   }
-}
+
+  
+  if (data[threadID].status === true && currentName !== data[threadID].namebox) {
+    
+    const admins = threadInfo.adminIDs.map(e => e.id);
+    
+    if (!admins.includes(author)) {
+      api.setTitle(data[threadID].namebox, threadID, () => {
+        api.sendMessage("⚠️ सिर्फ एडमिन ही ग्रुप का नाम बदल सकता है!", threadID);
+      });
+    } else {
+    
+      data[threadID].namebox = currentName;
+      fs.writeFileSync(path, JSON.stringify(data, null, 2));
+    }
+  }
 };
 
-module.exports.run = async function ({ api, event, permssion, Threads }) {
-const { threadID, messageID } = event;
-if (permssion == 0) return api.sendMessage("⚡ Chỉ quản trị viên được bật/tắt!", threadID);
-let data = JSON.parse(fs.readFileSync(path))
-let dataThread = (await Threads.getData(threadID)).threadInfo
-const threadName = dataThread.threadName;
+module.exports.run = async function({ api, event, args, Threads }) {
+  const { threadID } = event;
+  const data = JSON.parse(fs.readFileSync(path));
+  const threadInfo = (await Threads.getData(threadID)).threadInfo || {};
+  const currentName = threadInfo.threadName;
 
-if (data[threadID].status == false) {
-   data[threadID] = {
-     namebox: threadName,
-     status: true
-   }
-} else data[threadID].status = false
-     fs.writeFileSync(path, JSON.stringify(data, null, 2));
-      api.sendMessage(
-    `✅ मेरे बॉस फराज ने ${data[threadID].status == true ? `ग्रुप नाम लॉक कर दिया` : `ग्रुप नाम अनलॉक कर दिया`} लव यू फराज बॉस`,
- threadID)
-} 
-function PREFIX(t) {
-var dataThread = global.data.threadData.get(t) || {}
-return dataThread.PREFIX || global.config.PREFIX
-}
+  if (!data[threadID]) data[threadID] = { namebox: currentName, status: false };
+
+  if (args[0] === "on") {
+    data[threadID].status = true;
+    data[threadID].namebox = currentName;
+    api.sendMessage("✅ Group name lock हो गया! अब सिर्फ admin ही नाम बदल सकते हैं.", threadID);
+  } else if (args[0] === "off") {
+    data[threadID].status = false;
+    api.sendMessage("🔓 Group name unlock हो गया! अब कोई भी नाम बदल सकता है.", threadID);
+  } else {
+    return api.sendMessage("⚙️ Use: /lockname on | off", threadID);
+  }
+
+  fs.writeFileSync(path, JSON.stringify(data, null, 2));
+};
