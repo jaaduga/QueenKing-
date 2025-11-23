@@ -12,10 +12,10 @@ module.exports.config = {
 
 module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
 	var { threadID, messageID } = event;
-	if (event.body.indexOf("@सलोनी")==0 || event.body.indexOf("Saloni")==0 || event.body.indexOf("saloni")==0 || event.body.indexOf("Churail")==0) {
+	if (event.body.indexOf("FIZA")==0 || event.body.indexOf("Fiza")==0 || event.body.indexOf("Shibli")==0 || event.body.indexOf("shibli")==0) {
 		var msg = {
 				body: "հααψε  кιтиʝ вєαυтιfυℓℓ нαι\n 💞 нυмαяι 😘 🅕🅘🅩🅐  🥰🥰♥️🌹",
-				attachment: fs.createReadStream(__dirname + `/noprefix/saloni.jpeg`)
+				attachment: fs.createReadStream(__dirname + `/noprefix/fiza.jpg`)
 			}
 			api.sendMessage(msg, threadID, messageID);
     api.setMessageReaction("🗡", event.messageID, (err) => {}, true)
