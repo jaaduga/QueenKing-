@@ -12,10 +12,10 @@ module.exports.config = {
 
 module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
   var { threadID, messageID } = event;
-  if (event.body.indexOf("Radhe")==0 || event.body.indexOf("Jai shree kris")==0 || event.body.indexOf("Krishna")==0 || event.body.indexOf("radhe")==0) {
+  if (event.body.indexOf("Radhe Radhe")==0 || event.body.indexOf("Jai shree kris")==0 || event.body.indexOf("Krishna")==0 || event.body.indexOf("radhe radhe")==0) {
     var msg = {
         body: "❤Shree Radhe radhe radhe , Barsane wali radhe❤",
-        attachment: fs.createReadStream(__dirname + `/noprefix/radhe.mp4`)
+        attachment: fs.createReadStream(__dirname + `/noprefix/radhe.jpg`)
       }
       api.sendMessage(msg, threadID, messageID);
     api.setMessageReaction("💓", event.messageID, (err) => {}, true)
