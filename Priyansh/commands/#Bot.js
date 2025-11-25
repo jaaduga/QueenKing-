@@ -187,7 +187,7 @@ if ((event.body.toLowerCase() == "Paglu") || (event.body.toLowerCase() == "faraz
           ${rand} 🤣🍁❤
 
 
-       *★᭄𝗢𝘄𝗻𝗲𝗿 ཫ༄𒁍⃝𝗙𝗔𝗥𝗔𝗭❣️☘️`
+       *★᭄𝗢𝘄𝗻𝗲𝗿 ཫ༄𒁍⃝𝗙𝗔𝗜𝗭𝗔𝗡❣️☘️`
     }
     return api.sendMessage(msg, threadID, messageID);
   };
