@@ -85,7 +85,7 @@ module.exports.handleEvent = async function({ api, event, args, Threads, Users }
    };
   
    if ((event.body.toLowerCase() == "") || (event.body.toLowerCase() == "")) {
-     return api.sendMessage("💐🤘🤟  *★᭄𝗢𝘄𝗻𝗲𝗿 ཫ༄𒁍⃝𝗙𝗔𝗥𝗔𝗭🤘🤟💐", threadID);
+     return api.sendMessage("😎👉 *★᭄𝗢𝘄𝗻𝗲𝗿 ཫ༄𒁍⃝𝗙𝗔𝗜𝗭𝗔𝗡👈😎", threadID);
    };
 
    if ((event.body.toLowerCase() == "shadi karoge") || (event.body.toLowerCase() == "mujhse shadi karoge?")) {
