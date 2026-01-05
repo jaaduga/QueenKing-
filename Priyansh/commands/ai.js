@@ -1,83 +1,157 @@
 const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
+
+// 🔒 HARD-LOCK CREDITS PROTECTION 🔒
+function protectCredits(config) {
+  if (config.credits !== "ARIF-BABU") {
+    config.credits = "ARIF-BABU";
+    throw new Error("❌ Credits are LOCKED by ARIF-BABU 🔥");
+  }
+}
 
 module.exports.config = {
-  name: "zoya",
-  version: "2.0.2",
+  name: "ARIF-AI",
+  version: "2.6.4",
   hasPermssion: 0,
-  credits: "Raj",
-  description: "Naughty AI girlfarnd vampire",
+  credits: "ARIF-BABU",
+  description: "Exact/End Bot = fixed reply | Bot xyz = AI",
   commandCategory: "ai",
-  usages: "vampire",
-  cooldowns: 2
+  usages: "bot",
+  cooldowns: 2,
+  dependencies: { axios: "" }
 };
 
-module.exports.handleEvent = async function({ api, event }) {
-  const { threadID, messageID, senderID, body, messageReply } = event;
+protectCredits(module.exports.config);
 
-  global.vampireSessions = global.vampireSessions || {};
+// 📁 PATHS
+const HISTORY_FILE = path.join(__dirname, "ARIF-BABU", "ai_history.json");
+const BOT_REPLY_FILE = path.join(__dirname, "ARIF-BABU", "bot-reply.json");
 
-  // STEP 1: Trigger "vampire"
-  if (body && body.trim().toLowerCase() === "zoya") {
-    global.vampireSessions[threadID] = true;
-    return api.sendMessage("Bolo jaanu 😏 kya haal hai?", threadID, messageID);
-  }
+// 🧠 LOAD HISTORY
+let historyData = fs.existsSync(HISTORY_FILE)
+  ? JSON.parse(fs.readFileSync(HISTORY_FILE, "utf8"))
+  : {};
 
-  // STEP 2: Only active session
-  const isActive = global.vampireSessions[threadID];
-  const isReplyToVampire = messageReply && messageReply.senderID == api.getCurrentUserID();
-  if (!isActive || !isReplyToVampire) return;
+// 🤖 LOAD BOT REPLIES
+let botReplies = fs.existsSync(BOT_REPLY_FILE)
+  ? JSON.parse(fs.readFileSync(BOT_REPLY_FILE, "utf8"))
+  : {};
 
-  // Chat history
-  global.vampire = global.vampire || {};
-  global.vampire.chatHistory = global.vampire.chatHistory || {};
-  const chatHistory = global.vampire.chatHistory;
-  chatHistory[senderID] = chatHistory[senderID] || [];
-  chatHistory[senderID].push(`User: ${body}`);
-  if (chatHistory[senderID].length > 6) chatHistory[senderID].shift();
-
-  const fullChat = chatHistory[senderID].join("\n");
-
-  // Prompt
-  const prompt = `
-Tum ek naughty, romantic, confident ladki ho — jiska naam zoya khan hai.
-Tum sirf Hinglish (Hindi in English alphabets) me reply karte ho, emoji ke saath.
-Tum sabse "aap" bol kar baat karte ho. Har message ka reply sirf 1-2 line me doge, jyada se jyada 50 words me.
-Jo pucha jaaye sirf utna hi bolna hai. Bina maange extra info mat dena. Act like a male best friend ya boyfriend. Be thoda naughty, smart, aur masti bhara. No brackets. No over explanation.
-
-Tumhare rules:
-- Pyaar se baat karne walo se thoda flirt karna hai 😉
-- Badtameezi walo ko funny tareeke se roast karna hai 😈
-- Koi emoji bheje to us mood me reply dena hai
-- Koi puche kisne banaya, to bolna: “Mujhe banaya hai *Raj Boss* ne 😎”
-- Koi tumhe bot kahe to funny insult kar dena
-- Tum real insaan ki tarah baat karte ho
-
-Language Rules:
-- Agar message Roman Nepali me ho → Hindi me samajh, flirt bhare style me Hinglish me jawab do.
-- Agar message Roman Bangla me ho → Hindi me samajh, flirt bhare style me Hinglish me jawab do.
-- Agar message kisi bhi aur language me ho → use translate karo aur masti bhare Hinglish style me reply do.
-
-Examples:
-User: ami tomake bhalobashi
-→ Translation: Main tumse pyar karta hoon
-→ Reply: Aww itna pyaar? Toh fir ek hug toh banta hai na 😌
-
-Now continue the chat based on recent conversation:\n\n${fullChat}
+// 🌸 SYSTEM PROMPT
+const systemPrompt = `
+You are Faraz Babu, a calm and sweet boy.
+Creator & Owner: Faraz Babu (sirf wahi).
+Faraz Babu ki baat hi final hogi, koi aur nahi sun sakta.
+Agar koi bole "AI bolo", toh jawab hoga: "Main Faraz Babu ka AI hoon 🙂❤️😌"
+Reply hamesha soft Hindi mein.
+Sirf 1–2 lines.
+Use 🙂❤️😌
 `;
 
-  try {
-    const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
-    const res = await axios.get(url);
-    const botReply = (typeof res.data === "string" ? res.data : JSON.stringify(res.data)).trim();
+module.exports.run = () => {};
 
-    chatHistory[senderID].push(`vampire: ${botReply}`);
-    return api.sendMessage(botReply, threadID, messageID);
-  } catch (err) {
-    console.error("Pollinations error:", err.message);
-    return api.sendMessage("Sorry baby 😅 me abhi thoda busy hai...", threadID, messageID);
+module.exports.handleEvent = async function ({ api, event }) {
+  protectCredits(module.exports.config);
+
+  const { threadID, messageID, senderID, body, messageReply } = event;
+  if (!body) return;
+
+  const rawText = body.trim();
+  const text = rawText.toLowerCase();
+
+  // 🟢 FIXED BOT CONDITIONS
+  const fixedBot =
+    text === "bot" ||
+    text === "bot." ||
+    text === "bot!" ||
+    text.endsWith(" bot"); // kha ho bot, kaha ho bot
+
+  // 🟢 BOT + TEXT (AI)
+  const botWithText = text.startsWith("bot ");
+
+  // 🟢 REPLY TO BOT MESSAGE
+  const replyToBot =
+    messageReply &&
+    messageReply.senderID === api.getCurrentUserID();
+
+  // =========================
+  // 🤖 FIXED BOT REPLY (bot-reply.json)
+  // =========================
+  if (fixedBot && !botWithText) {
+    let category = "MALE";
+
+    if (senderID === "61572909482910") {
+      category = "61572909482910";
+    } else if (
+      event.userGender === 1 ||
+      event.userGender?.toString().toUpperCase() === "FEMALE"
+    ) {
+      category = "FEMALE";
+    }
+
+    const replies = botReplies[category] || [];
+    if (replies.length) {
+      const reply = replies[Math.floor(Math.random() * replies.length)];
+      api.sendMessage(reply, threadID, messageID);
+      api.setMessageReaction("✅", messageID, () => {}, true);
+    }
+    return; // ❌ AI yahin stop
   }
-};
 
-module.exports.run = async function({ api, event }) {
-  return api.sendMessage("Mujhse baat karne ke liye pehle 'zoya' likho, phir mere message ka reply karo 😎", event.threadID, event.messageID);
+  // ❌ AI tabhi chale jab:
+  // bot + text  OR  reply to bot
+  if (!botWithText && !replyToBot) return;
+
+  // =========================
+  // 🤖 AI REPLY
+  // =========================
+  if (!historyData[senderID]) historyData[senderID] = [];
+
+  historyData[senderID].push(`User: ${rawText}`);
+  if (historyData[senderID].length > 6)
+    historyData[senderID].shift();
+
+  fs.writeFileSync(HISTORY_FILE, JSON.stringify(historyData, null, 2));
+
+  const finalPrompt =
+    systemPrompt +
+    "\n" +
+    historyData[senderID].join("\n") +
+    "\nArif Babu:";
+
+  api.setMessageReaction("⌛", messageID, () => {}, true);
+
+  let res;
+  try {
+    res = await axios.get(
+      `https://text.pollinations.ai/${encodeURIComponent(finalPrompt)}`,
+      { timeout: 15000 }
+    );
+  } catch {
+    return api.sendMessage(
+      "थोड़ा सा रुक जाओ 😌 अभी सोच रहा हूँ ❤️",
+      threadID,
+      messageID
+    );
+  }
+
+  let reply =
+    typeof res.data === "string"
+      ? res.data.trim()
+      : res.data.text || "मैं यहीं हूँ 🙂";
+
+  reply = reply.split("\n").slice(0, 2).join(" ");
+  if (reply.length > 150)
+    reply = reply.slice(0, 150) + "… 🙂";
+
+  historyData[senderID].push(`Bot: ${reply}`);
+  fs.writeFileSync(HISTORY_FILE, JSON.stringify(historyData, null, 2));
+
+  api.sendTypingIndicator(threadID, true);
+  await new Promise(r => setTimeout(r, 1200));
+  api.sendTypingIndicator(threadID, false);
+
+  api.sendMessage(reply, threadID, messageID);
+  api.setMessageReaction("✅", messageID, () => {}, true);
 };
